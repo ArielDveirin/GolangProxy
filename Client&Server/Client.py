@@ -1,22 +1,22 @@
-import socket
+import json
+import urllib.request
 
-# Create a socket object
-client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def make_request():
+    url = 'http://localhost:12345'
+     # Create a dictionary with the string you want to send
+    data = 'Request: Hello, server! This is a string from the client.'
 
-# Define the host and port to connect
-host = "127.0.0.1"  # localhost
-port = 12345        # same port as server
+    # Encode the dictionary as JSON
+    data_json = json.dumps(data).encode('utf-8')
 
-# Connect to the server
-client_socket.connect((host, port))
+    # Set the Content-Type header to indicate JSON data
+    headers = {'Content-Type': 'application/json'}
 
-# Send data to the server
-message = "Hello from the client!"
-client_socket.sendall(message.encode())
+    # Make a POST request to the server with the JSON payload
+    request = urllib.request.Request(url, data=data_json, headers=headers, method='GET')
 
-# Receive a response from the server
-data = client_socket.recv(1024)
-print("Received:", data.decode())
+    with urllib.request.urlopen(request) as response:
+        html = response.read()
+        print(html.decode())
 
-# Close the connection
-client_socket.close()
+make_request()

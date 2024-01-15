@@ -1,32 +1,21 @@
-import socket
+from http.server import SimpleHTTPRequestHandler
+from socketserver import TCPServer
 
-# Create a socket object
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+class MyHandler(SimpleHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        self.wfile.write(b'Response: Hello, this is the server response!\n')
 
-# Define the host and port
-host = "127.0.0.1"  # localhost
-port = 12345        # arbitrary port number
+if __name__ == "__main__":
+    # Set the server address
+    server_address = ('localhost', 12345)
 
-# Bind the socket to the address
-server_socket.bind((host, port))
+    # Create an HTTP server
+    httpd = TCPServer(server_address, MyHandler)
 
-# Listen for incoming connections
-server_socket.listen()
+    print(f"Serving on {server_address[0]}:{server_address[1]}...")
 
-print("Server is listening...")
-
-# Accept incoming connections
-while True:
-    client_socket, client_address = server_socket.accept()
-    print(f"Connection from {client_address} has been established.")
-
-    # Receive data from the client
-    data = client_socket.recv(1024)
-    print("Received:", data.decode())
-
-    # Send a response back to the client
-    client_socket.sendall(b"Hello from the server!")
-
-# Close the connection
-client_socket.close()
-server_socket.close()
+    # Keep the server running indefinitely
+    httpd.serve_forever()
